@@ -58,19 +58,23 @@
 
 - (void)commonInit
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    self.wantsFullScreenLayout = YES;
-#pragma clang diagnostic pop
     _animationDuration = 0.35f;
     _panGestureEnabled = YES;
-    _scaleContentView = YES;
+    _interactivePopGestureRecognizerEnabled = YES;
+  
+    _scaleContentView      = YES;
+    _contentViewScaleValue = 0.7f;
+    
+    _scaleBackgroundImageView = YES;
+  
     _parallaxEnabled = YES;
     _parallaxMenuMinimumRelativeValue = @(-15);
     _parallaxMenuMaximumRelativeValue = @(15);
     
     _parallaxContentMinimumRelativeValue = @(-25);
     _parallaxContentMaximumRelativeValue = @(25);
+
+    _bouncesHorizontally = YES;
 }
 
 - (id)initWithContentViewController:(UIViewController *)contentViewController menuViewController:(UIViewController *)menuViewController
@@ -86,6 +90,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+  
+    if (!_contentViewInLandscapeOffsetCenterX)
+        _contentViewInLandscapeOffsetCenterX = CGRectGetHeight(self.view.frame) + 30.f;
+    
+    if (!_contentViewInPortraitOffsetCenterX)
+        _contentViewInPortraitOffsetCenterX  = CGRectGetWidth(self.view.frame) + 30.f;
+    
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.backgroundImageView = ({
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
@@ -101,80 +112,109 @@
     });
     
     [self.view addSubview:self.backgroundImageView];
-    [self re_displayController:self.menuViewController frame:self.view.frame];
-    [self re_displayController:self.contentViewController frame:self.view.frame];
+    [self re_displayController:self.menuViewController frame:self.view.bounds];
+    [self re_displayController:self.contentViewController frame:self.view.bounds];
+    self.menuViewController.view.alpha = 0;
+    if (self.scaleBackgroundImageView)
+        self.backgroundImageView.transform = CGAffineTransformMakeScale(1.7f, 1.7f);
     
     [self addMenuViewControllerMotionEffects];
     
     if (self.panGestureEnabled) {
         UIPanGestureRecognizer *panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognized:)];
+        panGestureRecognizer.delegate = self;
         [self.view addGestureRecognizer:panGestureRecognizer];
     }
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    [self.contentViewController beginAppearanceTransition:YES animated:animated];
+    [super viewWillAppear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    [self.contentViewController endAppearanceTransition];
+    [super viewDidAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-    [self.contentViewController beginAppearanceTransition:NO animated:animated];
+    [super viewWillDisappear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
-    [self.contentViewController endAppearanceTransition];
+    [super viewDidDisappear:animated];
 }
 
 #pragma mark -
 
 - (void)presentMenuViewController
 {
-
     self.menuViewController.view.transform = CGAffineTransformIdentity;
-    self.backgroundImageView.transform = CGAffineTransformIdentity;
-    self.backgroundImageView.frame = self.view.bounds;
+    if (self.scaleBackgroundImageView) {
+        self.backgroundImageView.transform = CGAffineTransformIdentity;
+        self.backgroundImageView.frame = self.view.bounds;
+    }
     self.menuViewController.view.frame = self.view.bounds;
     self.menuViewController.view.transform = CGAffineTransformMakeScale(1.5f, 1.5f);
     self.menuViewController.view.alpha = 0;
-    self.backgroundImageView.transform = CGAffineTransformMakeScale(1.7f, 1.7f);
+    if (self.scaleBackgroundImageView)
+        self.backgroundImageView.transform = CGAffineTransformMakeScale(1.7f, 1.7f);
+    
+    if ([self.delegate conformsToProtocol:@protocol(RESideMenuDelegate)] && [self.delegate respondsToSelector:@selector(sideMenu:willShowMenuViewController:)]) {
+        [self.delegate sideMenu:self willShowMenuViewController:self.menuViewController];
+    }
+    
     [self showMenuViewController];
 }
 
 - (void)showMenuViewController
 {
+    [self.view.window endEditing:YES];
     [self addContentButton];
+    
     [UIView animateWithDuration:self.animationDuration animations:^{
         if (self.scaleContentView) {
-            self.contentViewController.view.transform = CGAffineTransformMakeScale(0.7f, 0.7f);
+            self.contentViewController.view.transform = CGAffineTransformMakeScale(self.contentViewScaleValue, self.contentViewScaleValue);
         }
-        self.contentViewController.view.center = CGPointMake((UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation) ? self.view.frame.size.height : self.view.frame.size.width) + 30.0f, self.contentViewController.view.center.y);
+        self.contentViewController.view.center = CGPointMake((UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]) ? self.contentViewInLandscapeOffsetCenterX : self.contentViewInPortraitOffsetCenterX), self.contentViewController.view.center.y);
+
         self.menuViewController.view.alpha = 1.0f;
         self.menuViewController.view.transform = CGAffineTransformIdentity;
-        self.backgroundImageView.transform = CGAffineTransformIdentity;
+        if (self.scaleBackgroundImageView)
+            self.backgroundImageView.transform = CGAffineTransformIdentity;
+            
     } completion:^(BOOL finished) {
         [self addContentViewControllerMotionEffects];
+        
+        if (!self.visible && [self.delegate conformsToProtocol:@protocol(RESideMenuDelegate)] && [self.delegate respondsToSelector:@selector(sideMenu:didShowMenuViewController:)]) {
+            [self.delegate sideMenu:self didShowMenuViewController:self.menuViewController];
+        }
+        
+        self.visible = YES;
     }];
-    self.visible = YES;
+    
     [self updateStatusBar];
 }
 
 - (void)hideMenuViewController
 {
+    if ([self.delegate conformsToProtocol:@protocol(RESideMenuDelegate)] && [self.delegate respondsToSelector:@selector(sideMenu:willHideMenuViewController:)]) {
+        [self.delegate sideMenu:self willHideMenuViewController:self.menuViewController];
+    }
+    
     [self.contentButton removeFromSuperview];
+    
     [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
     [UIView animateWithDuration:self.animationDuration animations:^{
         self.contentViewController.view.transform = CGAffineTransformIdentity;
         self.contentViewController.view.frame = self.view.bounds;
         self.menuViewController.view.transform = CGAffineTransformMakeScale(1.5f, 1.5f);
         self.menuViewController.view.alpha = 0;
-        self.backgroundImageView.transform = CGAffineTransformMakeScale(1.7f, 1.7f);
+        if (self.scaleBackgroundImageView) {
+            self.backgroundImageView.transform = CGAffineTransformMakeScale(1.7f, 1.7f);
+        }
         if (self.parallaxEnabled) {
             IF_IOS7_OR_GREATER(
                for (UIMotionEffect *effect in self.contentViewController.view.motionEffects) {
@@ -184,6 +224,10 @@
         }
     } completion:^(BOOL finished) {
         [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+        
+        if (!self.visible && [self.delegate conformsToProtocol:@protocol(RESideMenuDelegate)] && [self.delegate respondsToSelector:@selector(sideMenu:didHideMenuViewController:)]) {
+            [self.delegate sideMenu:self didHideMenuViewController:self.menuViewController];
+        }
     }];
     self.visible = NO;
     [self updateStatusBar];
@@ -250,47 +294,94 @@
 #pragma mark -
 #pragma mark Gesture recognizer
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    IF_IOS7_OR_GREATER(
+       if (self.interactivePopGestureRecognizerEnabled && [self.contentViewController isKindOfClass:[UINavigationController class]]) {
+           UINavigationController *navigationController = (UINavigationController *)self.contentViewController;
+           if (navigationController.viewControllers.count > 1 && navigationController.interactivePopGestureRecognizer.enabled) {
+               return NO;
+           }
+       }
+    );
+  
+    if (self.panFromEdge && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] && !self.visible) {
+        CGPoint point = [touch locationInView:gestureRecognizer.view];
+        if (point.x < 30) {
+            return YES;
+        } else {
+            return NO;
+        }
+    }
+    return YES;
+}
+
 - (void)panGestureRecognized:(UIPanGestureRecognizer *)recognizer
 {
-    if (!self.panGestureEnabled)
+    if ([self.delegate conformsToProtocol:@protocol(RESideMenuDelegate)] && [self.delegate respondsToSelector:@selector(sideMenu:didRecognizePanGesture:)])
+        [self.delegate sideMenu:self didRecognizePanGesture:recognizer];
+    
+    if (!self.panGestureEnabled) {
         return;
+    }
     
     CGPoint point = [recognizer translationInView:self.view];
     
     if (recognizer.state == UIGestureRecognizerStateBegan) {
-        self.originalPoint = self.contentViewController.view.frame.origin;
+        
+        if (!self.visible && [self.delegate conformsToProtocol:@protocol(RESideMenuDelegate)] && [self.delegate respondsToSelector:@selector(sideMenu:willShowMenuViewController:)]) {
+            [self.delegate sideMenu:self willShowMenuViewController:self.menuViewController];
+        }
+        
+        self.originalPoint = CGPointMake(self.contentViewController.view.center.x - CGRectGetWidth(self.contentViewController.view.bounds) / 2.0,
+                                         self.contentViewController.view.center.y - CGRectGetHeight(self.contentViewController.view.bounds) / 2.0);
         self.menuViewController.view.transform = CGAffineTransformIdentity;
-        self.backgroundImageView.transform = CGAffineTransformIdentity;
-        self.backgroundImageView.frame = self.view.bounds;
+        if (self.scaleBackgroundImageView) {
+            self.backgroundImageView.transform = CGAffineTransformIdentity;
+            self.backgroundImageView.frame = self.view.bounds;
+        }
         self.menuViewController.view.frame = self.view.bounds;
         [self addContentButton];
+        [self.view.window endEditing:YES];
     }
     
-    if (recognizer.state == UIGestureRecognizerStateChanged) {
+    if (recognizer.state == UIGestureRecognizerStateBegan || recognizer.state == UIGestureRecognizerStateChanged) {
         CGFloat delta = self.visible ? (point.x + self.originalPoint.x) / self.originalPoint.x : point.x / self.view.frame.size.width;
         
-        CGFloat contentViewScale = self.scaleContentView ? 1 - (0.3f * delta) : 1;
+        CGFloat contentViewScale = self.scaleContentView ? 1 - ((1 - self.contentViewScaleValue) * delta) : 1;
         CGFloat backgroundViewScale = 1.7f - (0.7f * delta);
         CGFloat menuViewScale = 1.5f - (0.5f * delta);
+
+        if (!_bouncesHorizontally) {
+            contentViewScale = MAX(contentViewScale, self.contentViewScaleValue);
+            backgroundViewScale = MAX(backgroundViewScale, 1.0);
+            menuViewScale = MAX(menuViewScale, 1.0);
+        }
         
         self.menuViewController.view.alpha = delta;
-        self.contentViewController.view.transform = CGAffineTransformMakeScale(contentViewScale, contentViewScale);
-        self.backgroundImageView.transform = CGAffineTransformMakeScale(backgroundViewScale, backgroundViewScale);
+        if (self.scaleBackgroundImageView) {
+            self.backgroundImageView.transform = CGAffineTransformMakeScale(backgroundViewScale, backgroundViewScale);
+        }
         self.menuViewController.view.transform = CGAffineTransformMakeScale(menuViewScale, menuViewScale);
         
-        if (backgroundViewScale < 1) {
-            self.backgroundImageView.transform = CGAffineTransformIdentity;
+        if (self.scaleBackgroundImageView) {
+            if (backgroundViewScale < 1) {
+                self.backgroundImageView.transform = CGAffineTransformIdentity;
+            }
         }
         
         if (contentViewScale > 1) {
-            self.contentViewController.view.transform = CGAffineTransformIdentity;
-            CGRect frame = self.contentViewController.view.frame;
-            frame.origin.x = 0;
-            self.contentViewController.view.frame = frame;
+            if (!self.visible) {
+                self.contentViewController.view.transform = CGAffineTransformIdentity;
+            }
+            self.contentViewController.view.frame = self.view.bounds;
         } else {
-            CGRect frame = self.contentViewController.view.frame;
-            frame.origin.x = point.x + self.originalPoint.x;
-            self.contentViewController.view.frame = frame;
+            if (!_bouncesHorizontally && self.visible) {
+                point.x = MIN(0.0, point.x);
+                [recognizer setTranslation:point inView:self.view];
+            }
+            self.contentViewController.view.transform = CGAffineTransformMakeScale(contentViewScale, contentViewScale);
+            self.contentViewController.view.transform = CGAffineTransformTranslate(self.contentViewController.view.transform, point.x, 0);
         }
         
         [self updateStatusBar];
@@ -304,6 +395,87 @@
         }
     }
 }
+
+#pragma mark -
+#pragma mark Setters
+
+- (void)setBackgroundImage:(UIImage *)backgroundImage
+{
+    _backgroundImage = backgroundImage;
+    if (self.backgroundImageView)
+        self.backgroundImageView.image = backgroundImage;
+}
+
+- (void)setContentViewController:(UIViewController *)contentViewController
+{
+    if (!_contentViewController) {
+        _contentViewController = contentViewController;
+        return;
+    }
+    CGRect frame = _contentViewController.view.frame;
+    CGAffineTransform transform = _contentViewController.view.transform;
+    [self re_hideController:_contentViewController];
+    _contentViewController = contentViewController;
+    [self re_displayController:contentViewController frame:self.view.bounds];
+    contentViewController.view.transform = transform;
+    contentViewController.view.frame = frame;
+    
+    if(self.visible) {
+        [self addContentViewControllerMotionEffects];
+    }
+}
+
+- (void)setContentViewController:(UIViewController *)contentViewController animated:(BOOL)animated
+{
+    if (!animated) {
+        [self setContentViewController:contentViewController];
+    } else {
+        contentViewController.view.alpha = 0;
+        contentViewController.view.frame = self.contentViewController.view.bounds;
+        [self.contentViewController.view addSubview:contentViewController.view];
+        [UIView animateWithDuration:self.animationDuration animations:^{
+            contentViewController.view.alpha = 1;
+        } completion:^(BOOL finished) {
+            [contentViewController.view removeFromSuperview];
+            [self setContentViewController:contentViewController];
+        }];
+    }
+}
+
+- (void)setMenuViewController:(UIViewController *)menuViewController
+{
+    if (!_menuViewController) {
+        _menuViewController = menuViewController;
+        return;
+    }
+    [self re_hideController:_menuViewController];
+    _menuViewController = menuViewController;
+    [self re_displayController:menuViewController frame:self.view.frame];
+    
+    [self addMenuViewControllerMotionEffects];
+    [self.view bringSubviewToFront:self.contentViewController.view];
+}
+
+#pragma mark -
+#pragma mark Rotation handler
+
+- (BOOL)shouldAutorotate
+{
+    return self.contentViewController.shouldAutorotate;
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    if (self.visible) {
+        self.contentViewController.view.transform = CGAffineTransformIdentity;
+        self.contentViewController.view.frame = self.view.bounds;
+        self.contentViewController.view.transform = CGAffineTransformMakeScale(self.contentViewScaleValue, self.contentViewScaleValue);
+        self.contentViewController.view.center = CGPointMake((UIDeviceOrientationIsLandscape([UIDevice currentDevice].orientation) ? self.contentViewInLandscapeOffsetCenterX : self.contentViewInPortraitOffsetCenterX), self.contentViewController.view.center.y);
+    }
+}
+
+#pragma mark -
+#pragma mark Status bar appearance management
 
 - (void)updateStatusBar
 {
@@ -328,56 +500,32 @@
     return statusBarStyle;
 }
 
-#pragma mark -
-#pragma mark Setters
-
-- (void)setBackgroundImage:(UIImage *)backgroundImage
+- (BOOL)prefersStatusBarHidden
 {
-    _backgroundImage = backgroundImage;
-    if (self.backgroundImageView)
-        self.backgroundImageView.image = backgroundImage;
+    BOOL statusBarHidden = NO;
+    IF_IOS7_OR_GREATER(
+        statusBarHidden = self.visible ? self.menuViewController.prefersStatusBarHidden : self.contentViewController.prefersStatusBarHidden;
+        if (self.contentViewController.view.frame.origin.y > 10) {
+            statusBarHidden = self.menuViewController.prefersStatusBarHidden;
+        } else {
+            statusBarHidden = self.contentViewController.prefersStatusBarHidden;
+        }
+    );
+    return statusBarHidden;
 }
 
-- (void)setContentViewController:(UIViewController *)contentViewController
+- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
 {
-    if (!_contentViewController) {
-        _contentViewController = contentViewController;
-        return;
-    }
-    CGRect frame = _contentViewController.view.frame;
-    CGAffineTransform transform = _contentViewController.view.transform;
-    [self re_hideController:_contentViewController];
-    _contentViewController = contentViewController;
-    [self re_displayController:contentViewController frame:self.view.frame];
-    contentViewController.view.transform = transform;
-    contentViewController.view.frame = frame;
-    
-    [self addContentViewControllerMotionEffects];
-}
-
-- (void)setMenuViewController:(UIViewController *)menuViewController
-{
-    if (!_menuViewController) {
-        _menuViewController = menuViewController;
-        return;
-    }
-    [self re_hideController:_menuViewController];
-    _menuViewController = menuViewController;
-    [self re_displayController:menuViewController frame:self.view.frame];
-    
-    [self addMenuViewControllerMotionEffects];
-    [self.view bringSubviewToFront:self.contentViewController.view];
-}
-
-#pragma mark -
-#pragma mark Rotation handler
-
-- (BOOL)shouldAutorotate
-{
-    if (self.visible)
-        return NO;
-    
-    return self.contentViewController.shouldAutorotate;
+    UIStatusBarAnimation statusBarAnimation = UIStatusBarAnimationNone;
+    IF_IOS7_OR_GREATER(
+        statusBarAnimation = self.visible ? self.menuViewController.preferredStatusBarUpdateAnimation : self.contentViewController.preferredStatusBarUpdateAnimation;
+        if (self.contentViewController.view.frame.origin.y > 10) {
+            statusBarAnimation = self.menuViewController.preferredStatusBarUpdateAnimation;
+        } else {
+            statusBarAnimation = self.contentViewController.preferredStatusBarUpdateAnimation;
+        }
+    );
+    return statusBarAnimation;
 }
 
 @end

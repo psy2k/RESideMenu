@@ -409,7 +409,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RESideMenuStoryboardsExample/RESideMenuStoryboardsExample-Prefix.pch";
 				INFOPLIST_FILE = "RESideMenuStoryboardsExample/RESideMenuStoryboardsExample-Info.plist";
+<<<<<<< HEAD
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+=======
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+>>>>>>> b8c9c5b9b243eb9222c3080031bab530060d289f
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -424,7 +428,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RESideMenuStoryboardsExample/RESideMenuStoryboardsExample-Prefix.pch";
 				INFOPLIST_FILE = "RESideMenuStoryboardsExample/RESideMenuStoryboardsExample-Info.plist";
+<<<<<<< HEAD
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+=======
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+>>>>>>> b8c9c5b9b243eb9222c3080031bab530060d289f
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;

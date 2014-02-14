@@ -20,7 +20,7 @@ Build and run the `RESideMenuExample` project in Xcode to see `RESideMenu` in ac
 ### CocoaPods
 
 The recommended approach for installating `RESideMenu` is via the [CocoaPods](http://cocoapods.org/) package manager, as it provides flexible dependency management and dead simple installation.
-For best results, it is recommended that you install via CocoaPods >= **0.26.2** using Git >= **1.8.0** installed via Homebrew.
+For best results, it is recommended that you install via CocoaPods >= **0.28.0** using Git >= **1.8.0** installed via Homebrew.
 
 Install CocoaPods if not already available:
 
@@ -41,7 +41,7 @@ Edit your Podfile and add RESideMenu:
 
 ``` bash
 platform :ios, '6.0'
-pod 'RESideMenu', '~> 3.1.4'
+pod 'RESideMenu', '~> 3.4'
 ```
 
 Install into your Xcode project:
@@ -88,22 +88,31 @@ Present the view controller:
 [self.sideMenuViewController presentMenuViewController];
 ```
 
+Switch content view controllers:
+
+```objective-c
+#import <RESideMenu/RESideMenu.h>
+
+....
+
+[self.sideMenuViewController setContentViewController:viewController animated:YES];
+[self.sideMenuViewController hideMenuViewController];
+```
+
 ## Storyboards Example
 
 1. Create a subclass of `RESideMenu`. In this example we call it `DEMORootViewController`.
 2. In the Storyboard designate the root view's owner as `DEMORootViewController`.
 3. Make sure to `#import "RESideMenu.h"` in `DEMORootViewController.h`.
-4. Add more view controllers to your Storyboard, and give them identifiers "menuViewController" and "contentViewController". Note that in the new XCode the identifier is called "Storyboard ID" and can be found in the Identity inspector.
+4. Add more view controllers to your Storyboard, and give them identifiers "menuController" and "contentController". Note that in the new XCode the identifier is called "Storyboard ID" and can be found in the Identity inspector.
 5. Add a method `awakeFromNib` to `DEMORootViewController.m` with the following code:
 
 ```objective-c
-
 - (void)awakeFromNib
 {
     self.contentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"contentController"];
     self.menuViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"menuController"];
 }
-
 ```
 
 ## Customization
@@ -114,11 +123,30 @@ You can customize the following properties of `RESideMenu`:
 @property (assign, readwrite, nonatomic) NSTimeInterval animationDuration;
 @property (strong, readwrite, nonatomic) UIImage *backgroundImage;
 @property (assign, readwrite, nonatomic) BOOL panGestureEnabled;
+@property (assign, readwrite, nonatomic) BOOL interactivePopGestureRecognizerEnabled;
+@property (assign, readwrite, nonatomic) BOOL scaleContentView;
+@property (assign, readwrite, nonatomic) BOOL scaleBackgroundImageView;
+@property (assign, readwrite, nonatomic) CGFloat contentViewScaleValue;
+@property (assign, readwrite, nonatomic) CGFloat contentViewInLandscapeOffsetCenterX;
+@property (assign, readwrite, nonatomic) CGFloat contentViewInPortraitOffsetCenterX;
 @property (strong, readwrite, nonatomic) id parallaxMenuMinimumRelativeValue;
 @property (strong, readwrite, nonatomic) id parallaxMenuMaximumRelativeValue;
 @property (strong, readwrite, nonatomic) id parallaxContentMinimumRelativeValue;
 @property (strong, readwrite, nonatomic) id parallaxContentMaximumRelativeValue;
 @property (assign, readwrite, nonatomic) BOOL parallaxEnabled;
+@property (assign, readwrite, nonatomic) BOOL bouncesHorizontally;
+```
+
+If you set a backgroundImage, don't forget to set the MenuViewController's background color to clear color.
+
+You can implement `RESideMenuDelegate` protocol to receive the following messages:
+
+```objective-c
+- (void)sideMenu:(RESideMenu *)sideMenu didRecognizePanGesture:(UIPanGestureRecognizer *)recognizer;
+- (void)sideMenu:(RESideMenu *)sideMenu willShowMenuViewController:(UIViewController *)menuViewController;
+- (void)sideMenu:(RESideMenu *)sideMenu didShowMenuViewController:(UIViewController *)menuViewController;
+- (void)sideMenu:(RESideMenu *)sideMenu willHideMenuViewController:(UIViewController *)menuViewController;
+- (void)sideMenu:(RESideMenu *)sideMenu didHideMenuViewController:(UIViewController *)menuViewController;
 ```
 
 ## Contact

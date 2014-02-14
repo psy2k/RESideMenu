@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+<<<<<<< HEAD:Examples/Simple/RESideMenuExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuExample.xccheckout
+	<string>D132F5A6-479E-457A-B606-29EBA0732188</string>
+=======
+	<string>3879733F-3A95-4277-B781-69031D14BC32</string>
+>>>>>>> b8c9c5b9b243eb9222c3080031bab530060d289f:Examples/Storyboards/RESideMenuStoryboardsExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuStoryboardsExample.xccheckout
+	<key>IDESourceControlProjectName</key>
+	<string>RESideMenuStoryboardsExample</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+<<<<<<< HEAD:Examples/Simple/RESideMenuExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuExample.xccheckout
+		<key>7488F6D6-DFD6-4A86-BBF2-550377D6B227</key>
+		<string>https://github.com/psy2k/RESideMenu.git</string>
+=======
+		<key>D8E9CD00-2368-4ABD-BD15-AB69D787B293</key>
+		<string>ssh://github.com/romaonthego/RESideMenu.git</string>
+>>>>>>> b8c9c5b9b243eb9222c3080031bab530060d289f:Examples/Storyboards/RESideMenuStoryboardsExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuStoryboardsExample.xccheckout
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Examples/Storyboards/RESideMenuStoryboardsExample.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+<<<<<<< HEAD:Examples/Simple/RESideMenuExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuExample.xccheckout
+		<key>7488F6D6-DFD6-4A86-BBF2-550377D6B227</key>
+=======
+		<key>D8E9CD00-2368-4ABD-BD15-AB69D787B293</key>
+>>>>>>> b8c9c5b9b243eb9222c3080031bab530060d289f:Examples/Storyboards/RESideMenuStoryboardsExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuStoryboardsExample.xccheckout
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/psy2k/RESideMenu.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+<<<<<<< HEAD:Examples/Simple/RESideMenuExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuExample.xccheckout
+	<string>7488F6D6-DFD6-4A86-BBF2-550377D6B227</string>
+=======
+	<string>D8E9CD00-2368-4ABD-BD15-AB69D787B293</string>
+>>>>>>> b8c9c5b9b243eb9222c3080031bab530060d289f:Examples/Storyboards/RESideMenuStoryboardsExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuStoryboardsExample.xccheckout
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+<<<<<<< HEAD:Examples/Simple/RESideMenuExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuExample.xccheckout
+			<string>7488F6D6-DFD6-4A86-BBF2-550377D6B227</string>
+=======
+			<string>D8E9CD00-2368-4ABD-BD15-AB69D787B293</string>
+>>>>>>> b8c9c5b9b243eb9222c3080031bab530060d289f:Examples/Storyboards/RESideMenuStoryboardsExample.xcodeproj/project.xcworkspace/xcshareddata/RESideMenuStoryboardsExample.xccheckout
+			<key>IDESourceControlWCCName</key>
+			<string>RESideMenu</string>
+		</dict>
+	</array>
+</dict>
+</plist>
