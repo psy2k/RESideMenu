@@ -92,13 +92,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1A59CF77181266AA001D4A90 /* iPad */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = iPad;
-			sourceTree = "<group>";
-		};
 		3076CDB51809B47200527E6C = {
 			isa = PBXGroup;
 			children = (
@@ -132,7 +125,6 @@
 		3076CDC71809B47200527E6C /* RESideMenuStoryboardsExample */ = {
 			isa = PBXGroup;
 			children = (
-				1A59CF77181266AA001D4A90 /* iPad */,
 				3076CDF61809B50100527E6C /* Controllers */,
 				3076CDD01809B47200527E6C /* DEMOAppDelegate.h */,
 				3076CDD11809B47200527E6C /* DEMOAppDelegate.m */,
@@ -409,11 +401,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RESideMenuStoryboardsExample/RESideMenuStoryboardsExample-Prefix.pch";
 				INFOPLIST_FILE = "RESideMenuStoryboardsExample/RESideMenuStoryboardsExample-Info.plist";
-<<<<<<< HEAD
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-=======
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
->>>>>>> b8c9c5b9b243eb9222c3080031bab530060d289f
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
@@ -428,11 +416,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RESideMenuStoryboardsExample/RESideMenuStoryboardsExample-Prefix.pch";
 				INFOPLIST_FILE = "RESideMenuStoryboardsExample/RESideMenuStoryboardsExample-Info.plist";
-<<<<<<< HEAD
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-=======
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
->>>>>>> b8c9c5b9b243eb9222c3080031bab530060d289f
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
